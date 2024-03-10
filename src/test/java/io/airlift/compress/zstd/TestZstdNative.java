@@ -11,38 +11,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.airlift.compress.lz4;
+package io.airlift.compress.zstd;
 
 import io.airlift.compress.Compressor;
 import io.airlift.compress.Decompressor;
-import io.airlift.compress.thirdparty.JPountzLz4Compressor;
-import io.airlift.compress.thirdparty.JPountzLz4Decompressor;
-import net.jpountz.lz4.LZ4Factory;
+import io.airlift.compress.thirdparty.ZstdJniCompressor;
+import io.airlift.compress.thirdparty.ZstdJniDecompressor;
 
-class TestLz4
-        extends AbstractTestLz4
+public class TestZstdNative
+        extends AbstractTestZstd
 {
     @Override
-    protected Compressor getCompressor()
+    protected ZstdCompressor getCompressor()
     {
-        return new Lz4JavaCompressor();
+        return new ZstdNativeCompressor();
     }
 
     @Override
-    protected Decompressor getDecompressor()
+    protected ZstdDecompressor getDecompressor()
     {
-        return new Lz4JavaDecompressor();
+        return new ZstdNativeDecompressor();
     }
 
     @Override
     protected Compressor getVerifyCompressor()
     {
-        return new JPountzLz4Compressor(LZ4Factory.fastestInstance());
+        return new ZstdJniCompressor(3);
     }
 
     @Override
     protected Decompressor getVerifyDecompressor()
     {
-        return new JPountzLz4Decompressor(LZ4Factory.fastestInstance());
+        return new ZstdJniDecompressor();
     }
 }

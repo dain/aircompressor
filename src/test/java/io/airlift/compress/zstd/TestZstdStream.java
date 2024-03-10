@@ -32,13 +32,13 @@ class TestZstdStream
     }
 
     @Override
-    protected Compressor getCompressor()
+    protected ZstdCompressor getCompressor()
     {
         return new ZstdStreamCompressor();
     }
 
     @Override
-    protected Decompressor getDecompressor()
+    protected ZstdDecompressor getDecompressor()
     {
         return new ZstdStreamDecompressor();
     }
@@ -46,13 +46,13 @@ class TestZstdStream
     @Override
     protected Compressor getVerifyCompressor()
     {
-        return new ZstdCompressor();
+        return new ZstdJavaCompressor();
     }
 
     @Override
     protected Decompressor getVerifyDecompressor()
     {
-        return new ZstdDecompressor();
+        return new ZstdJavaDecompressor();
     }
 
     @Override

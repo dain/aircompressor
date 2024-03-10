@@ -184,7 +184,10 @@ public abstract class AbstractTestCompression
         }
         else {
             assertThat(throwable)
-                    .hasMessageMatching(".*must not be greater than size.*|Invalid offset or length.*");
+                    .hasMessageMatching(String.join("|",
+                            ".*must not be greater than size.*",
+                            "Invalid offset or length.*",
+                            "Out of bound access on segment.*"));
         }
 
         // overrun because of offset
@@ -197,7 +200,10 @@ public abstract class AbstractTestCompression
         }
         else {
             assertThat(throwable)
-                    .hasMessageMatching(".*must not be greater than size.*|Invalid offset or length.*");
+                    .hasMessageMatching(String.join("|",
+                            ".*must not be greater than size.*",
+                            "Invalid offset or length.*",
+                            "Out of bound access on segment.*"));
         }
     }
 
@@ -220,7 +226,13 @@ public abstract class AbstractTestCompression
 
         // small buffer
         assertThatThrownBy(() -> decompressor.decompress(input, 0, input.length, new byte[1], 0, 1))
-                .hasMessageMatching("All input was not consumed|attempt to write.* outside of destination buffer.*|Malformed input.*|Uncompressed length 1024 must be less than 1|Output buffer too small.*");
+                .hasMessageMatching(String.join("|",
+                        "All input was not consumed",
+                        "attempt to write.* outside of destination buffer.*",
+                        "Malformed input.*",
+                        "Uncompressed length 1024 must be less than 1",
+                        "Output buffer too small.*",
+                        "Unknown error occurred.*"));
 
         // mis-declared buffer size
         throwable = catchThrowable(() -> decompressor.decompress(input, 0, input.length, new byte[1], 0, data.length));
@@ -229,7 +241,9 @@ public abstract class AbstractTestCompression
         }
         else {
             assertThat(throwable)
-                    .hasMessageMatching(".*must not be greater than size.*|Invalid offset or length.*");
+                    .hasMessageMatching(String.join("|",
+                            ".*must not be greater than size.*",
+                            "Invalid offset or length.*"));
         }
 
         // mis-declared buffer size with greater buffer
@@ -239,7 +253,9 @@ public abstract class AbstractTestCompression
         }
         else {
             assertThat(throwable)
-                    .hasMessageMatching(".*must not be greater than size.*|Invalid offset or length.*");
+                    .hasMessageMatching(String.join("|",
+                            ".*must not be greater than size.*",
+                            "Invalid offset or length.*"));
         }
     }
 
@@ -436,7 +452,13 @@ public abstract class AbstractTestCompression
 
         // small buffer
         assertThatThrownBy(() -> compressor.compress(input, 0, input.length, new byte[1], 0, 1))
-                .hasMessageMatching(".*must not be greater than size.*|Invalid offset or length.*|Max output length must be larger than .*|Output buffer must be at least.*|Output buffer too small");
+                .hasMessageMatching(String.join("|",
+                        ".*must not be greater than size.*",
+                        "Invalid offset or length.*",
+                        "Max output length must be larger than .*",
+                        "Output buffer must be at least.*",
+                        "Output buffer too small",
+                        "Unknown error occurred.*"));
 
         // mis-declared buffer size
         throwable = catchThrowable(() -> compressor.compress(input, 0, input.length, new byte[1], 0, maxCompressedLength));
@@ -445,7 +467,10 @@ public abstract class AbstractTestCompression
         }
         else {
             assertThat(throwable)
-                    .hasMessageMatching(".*must not be greater than size.*|Invalid offset or length.*");
+                    .hasMessageMatching(String.join("|",
+                            ".*must not be greater than size.*",
+                            "Invalid offset or length.*",
+                            "Out of bound access on segment.*"));
         }
 
         // mis-declared buffer size with buffer large enough to hold compression frame header (if any)
@@ -455,7 +480,10 @@ public abstract class AbstractTestCompression
         }
         else {
             assertThat(throwable)
-                    .hasMessageMatching(".*must not be greater than size.*|Invalid offset or length.*");
+                    .hasMessageMatching(String.join("|",
+                            ".*must not be greater than size.*",
+                            "Invalid offset or length.*",
+                            "Out of bound access on segment.*"));
         }
     }
 

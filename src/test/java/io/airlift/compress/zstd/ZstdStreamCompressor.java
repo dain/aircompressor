@@ -13,11 +13,10 @@
  */
 package io.airlift.compress.zstd;
 
-import io.airlift.compress.Compressor;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
 
 import static com.google.common.primitives.Ints.constrainToRange;
@@ -26,7 +25,7 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public class ZstdStreamCompressor
-        implements Compressor
+        implements ZstdCompressor
 {
     @Override
     public int maxCompressedLength(int uncompressedSize)
@@ -69,6 +68,12 @@ public class ZstdStreamCompressor
 
     @Override
     public void compress(ByteBuffer inputBuffer, ByteBuffer outputBuffer)
+    {
+        throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public int compress(MemorySegment inputSegment, MemorySegment outputSegment)
     {
         throw new UnsupportedOperationException("not yet implemented");
     }

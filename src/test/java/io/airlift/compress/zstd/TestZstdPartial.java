@@ -23,7 +23,7 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TestZstdPartial
-        extends TestZstd
+        extends AbstractTestZstd
 {
     @Override
     protected boolean isByteBufferSupported()
@@ -32,13 +32,13 @@ class TestZstdPartial
     }
 
     @Override
-    protected Compressor getCompressor()
+    protected ZstdCompressor getCompressor()
     {
-        return new ZstdCompressor();
+        return new ZstdJavaCompressor();
     }
 
     @Override
-    protected Decompressor getDecompressor()
+    protected ZstdDecompressor getDecompressor()
     {
         return new ZstdPartialDecompressor();
     }
@@ -46,13 +46,13 @@ class TestZstdPartial
     @Override
     protected Compressor getVerifyCompressor()
     {
-        return new ZstdCompressor();
+        return new ZstdJavaCompressor();
     }
 
     @Override
     protected Decompressor getVerifyDecompressor()
     {
-        return new ZstdDecompressor();
+        return new ZstdJavaDecompressor();
     }
 
     @Override
