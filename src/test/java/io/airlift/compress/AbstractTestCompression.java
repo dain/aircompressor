@@ -79,6 +79,7 @@ public abstract class AbstractTestCompression
 
     void testDecompress(DataSet dataSet)
     {
+        System.out.println("testDecompress " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
         byte[] compressed = prepareCompressedData(uncompressedOriginal);
 
@@ -107,6 +108,7 @@ public abstract class AbstractTestCompression
 
     private void testDecompressWithOutputPadding(DataSet dataSet)
     {
+        System.out.println("testDecompressWithOutputPadding " + dataSet.getName());
         int padding = 1021;
 
         byte[] uncompressedOriginal = dataSet.getUncompressed();
@@ -136,6 +138,7 @@ public abstract class AbstractTestCompression
 
     private void testDecompressionBufferOverrun(DataSet dataSet)
     {
+        System.out.println("testDecompressionBufferOverrun " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
         byte[] compressed = prepareCompressedData(uncompressedOriginal);
 
@@ -163,6 +166,7 @@ public abstract class AbstractTestCompression
     @Test
     void testDecompressInputBoundsChecks()
     {
+        System.out.println("testDecompressInputBoundsChecks");
         byte[] data = new byte[1024];
         new Random(1234).nextBytes(data);
         Compressor compressor = getCompressor();
@@ -210,6 +214,7 @@ public abstract class AbstractTestCompression
     @Test
     void testDecompressOutputBoundsChecks()
     {
+        System.out.println("testDecompressOutputBoundsChecks");
         byte[] data = new byte[1024];
         new Random(1234).nextBytes(data);
         Compressor compressor = getCompressor();
@@ -272,6 +277,7 @@ public abstract class AbstractTestCompression
         if (!isByteBufferSupported()) {
             Assumptions.abort("ByteBuffer not supported");
         }
+        System.out.println("testDecompressByteBufferHeapToHeap " + dataSet.getName());
 
         byte[] uncompressedOriginal = dataSet.getUncompressed();
 
@@ -298,6 +304,7 @@ public abstract class AbstractTestCompression
             Assumptions.abort("ByteBuffer not supported");
         }
 
+        System.out.println("testDecompressByteBufferHeapToDirect " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
 
         ByteBuffer compressed = ByteBuffer.wrap(prepareCompressedData(uncompressedOriginal));
@@ -323,6 +330,7 @@ public abstract class AbstractTestCompression
             Assumptions.abort("ByteBuffer not supported");
         }
 
+        System.out.println("testDecompressByteBufferDirectToHeap " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
 
         ByteBuffer compressed = toDirectBuffer(prepareCompressedData(uncompressedOriginal));
@@ -348,6 +356,7 @@ public abstract class AbstractTestCompression
             Assumptions.abort("ByteBuffer not supported");
         }
 
+        System.out.println("testDecompressByteBufferDirectToDirect " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
 
         ByteBuffer compressed = toDirectBuffer(prepareCompressedData(uncompressedOriginal));
@@ -369,6 +378,7 @@ public abstract class AbstractTestCompression
 
     private void testCompress(DataSet testCase)
     {
+        System.out.println("testCompress " + testCase.getName());
         Compressor compressor = getCompressor();
 
         byte[] originalUncompressed = testCase.getUncompressed();
@@ -395,6 +405,7 @@ public abstract class AbstractTestCompression
     @Test
     void testCompressInputBoundsChecks()
     {
+        System.out.println("testCompressInputBoundsChecks");
         Compressor compressor = getCompressor();
         int declaredInputLength = 1024;
         int maxCompressedLength = compressor.maxCompressedLength(1024);
@@ -439,6 +450,7 @@ public abstract class AbstractTestCompression
     @Test
     void testCompressOutputBoundsChecks()
     {
+        System.out.println("testCompressOutputBoundsChecks");
         Compressor compressor = getCompressor();
         int minCompressionOverhead = compressor.maxCompressedLength(0);
         byte[] input = new byte[minCompressionOverhead * 4 + 1024];
@@ -501,6 +513,7 @@ public abstract class AbstractTestCompression
             Assumptions.abort("ByteBuffer not supported");
         }
 
+        System.out.println("testCompressByteBufferHeapToHeap " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
 
         Compressor compressor = getCompressor();
@@ -525,6 +538,7 @@ public abstract class AbstractTestCompression
             Assumptions.abort("ByteBuffer not supported");
         }
 
+        System.out.println("testCompressByteBufferHeapToDirect " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
 
         Compressor compressor = getCompressor();
@@ -549,6 +563,7 @@ public abstract class AbstractTestCompression
             Assumptions.abort("ByteBuffer not supported");
         }
 
+        System.out.println("testCompressByteBufferDirectToHeap " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
 
         Compressor compressor = getCompressor();
@@ -573,6 +588,7 @@ public abstract class AbstractTestCompression
             Assumptions.abort("ByteBuffer not supported");
         }
 
+        System.out.println("testCompressByteBufferDirectToDirect " + dataSet.getName());
         byte[] uncompressedOriginal = dataSet.getUncompressed();
 
         Compressor compressor = getCompressor();
@@ -616,6 +632,7 @@ public abstract class AbstractTestCompression
     @Test
     void testRoundTripSmallLiteral()
     {
+        System.out.println("testRoundTripSmallLiteral");
         byte[] data = new byte[256];
         for (int i = 0; i < data.length; i++) {
             data[i] = (byte) i;

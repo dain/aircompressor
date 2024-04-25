@@ -42,6 +42,7 @@ public abstract class AbstractTestZstd
     void testDecompressWithOutputPaddingAndChecksum()
             throws IOException
     {
+        System.out.println("testDecompressWithOutputPaddingAndChecksum");
         int padding = 1021;
 
         byte[] compressed = Resources.toByteArray(Resources.getResource("data/zstd/with-checksum.zst"));
@@ -57,6 +58,7 @@ public abstract class AbstractTestZstd
     void testConcatenatedFrames()
             throws IOException
     {
+        System.out.println("testConcatenatedFrames");
         byte[] compressed = Resources.toByteArray(Resources.getResource("data/zstd/multiple-frames.zst"));
         byte[] uncompressed = Resources.toByteArray(Resources.getResource("data/zstd/multiple-frames"));
 
@@ -70,6 +72,7 @@ public abstract class AbstractTestZstd
     void testInvalidSequenceOffset()
             throws IOException
     {
+        System.out.println("testInvalidSequenceOffset");
         byte[] compressed = Resources.toByteArray(Resources.getResource("data/zstd/offset-before-start.zst"));
         byte[] output = new byte[compressed.length * 10];
 
@@ -81,6 +84,7 @@ public abstract class AbstractTestZstd
     void testSmallLiteralsAfterIncompressibleLiterals()
             throws IOException
     {
+        System.out.println("testSmallLiteralsAfterIncompressibleLiterals");
         // Ensure the compressor doesn't try to reuse a huffman table that was created speculatively for a previous block
         // which ended up emitting raw literals due to insufficient gain
         Compressor compressor = getCompressor();
@@ -101,6 +105,7 @@ public abstract class AbstractTestZstd
     void testLargeRle()
             throws IOException
     {
+        System.out.println("testLargeRle");
         // Dataset that produces an RLE block with 3-byte header
 
         Compressor compressor = getCompressor();
@@ -121,6 +126,7 @@ public abstract class AbstractTestZstd
     void testIncompressibleData()
             throws IOException
     {
+        System.out.println("testIncompressibleData");
         // Incompressible data that would require more than maxCompressedLength(...) to store
 
         Compressor compressor = getCompressor();
@@ -140,6 +146,7 @@ public abstract class AbstractTestZstd
     @Test
     void testMaxCompressedSize()
     {
+        System.out.println("testMaxCompressedSize");
         assertThat(getCompressor().maxCompressedLength(0)).isEqualTo(64);
         assertThat(getCompressor().maxCompressedLength(64 * 1024)).isEqualTo(65_824);
         assertThat(getCompressor().maxCompressedLength(128 * 1024)).isEqualTo(131_584);
@@ -157,6 +164,7 @@ public abstract class AbstractTestZstd
 
     private void testGetDecompressedSize(DataSet dataSet)
     {
+        System.out.println("testGetDecompressedSize: " + dataSet.getName());
         Compressor compressor = getCompressor();
         byte[] originalUncompressed = dataSet.getUncompressed();
         byte[] compressed = new byte[compressor.maxCompressedLength(originalUncompressed.length)];
@@ -176,6 +184,7 @@ public abstract class AbstractTestZstd
     void testVerifyMagicInAllFrames()
             throws IOException
     {
+        System.out.println("testVerifyMagicInAllFrames");
         byte[] compressed = Resources.toByteArray(Resources.getResource("data/zstd/bad-second-frame.zst"));
         byte[] uncompressed = Resources.toByteArray(Resources.getResource("data/zstd/multiple-frames"));
         byte[] output = new byte[uncompressed.length];
@@ -186,6 +195,7 @@ public abstract class AbstractTestZstd
     @Test
     void testDecompressIsMissingData()
     {
+        System.out.println("testDecompressIsMissingData");
         byte[] input = new byte[]{40, -75, 47, -3, 32, 0, 1, 0};
         byte[] output = new byte[1024];
         assertThatThrownBy(() -> getDecompressor().decompress(input, 0, input.length, output, 0, output.length))
@@ -196,6 +206,7 @@ public abstract class AbstractTestZstd
     void testBadHuffmanData()
             throws IOException
     {
+        System.out.println("testBadHuffmanData");
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         // Magic
         buffer.write(new byte[] {
