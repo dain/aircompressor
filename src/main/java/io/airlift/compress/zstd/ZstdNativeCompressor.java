@@ -15,6 +15,7 @@ package io.airlift.compress.zstd;
 
 import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static io.airlift.compress.zstd.ZstdNative.DEFAULT_COMPRESSION_LEVEL;
 import static java.lang.Math.toIntExact;
@@ -43,9 +44,11 @@ public class ZstdNativeCompressor
     @Override
     public int compress(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int maxOutputLength)
     {
+        Objects.checkFromIndexSize(inputOffset, inputLength, input.length);
+        Objects.checkFromIndexSize(outputOffset, maxOutputLength, output.length);
         MemorySegment inputSegment = MemorySegment.ofArray(input).asSlice(inputOffset, inputLength);
         MemorySegment outputSegment = MemorySegment.ofArray(output).asSlice(outputOffset, maxOutputLength);
-        return toIntExact(ZstdNative.compress(inputSegment, inputLength, outputSegment, maxOutputLength, compressionLevel));
+        return toIntExact(compress(inputSegment, outputSegment));
     }
 
     @Override
@@ -60,6 +63,6 @@ public class ZstdNativeCompressor
     @Override
     public int compress(MemorySegment inputSegment, MemorySegment outputSegment)
     {
-        return toIntExact(ZstdNative.compress(inputSegment, inputSegment.byteSize(), outputSegment, outputSegment.byteSize(), compressionLevel));
+        return toIntExact(ZstdNative.compress(inputSegment, outputSegment, compressionLevel));
     }
 }

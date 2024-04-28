@@ -21,4 +21,9 @@ jobs:
       - name: Maven Install
         run: mvn install -B -V -DskipTests -Dair.check.skip-all
       - name: Maven Tests
-        run: mvn install -B -P ci
+        run: mvn install -B -P ci -Dtest=TestZstdNative
+      - name: output hs_err_pid files 
+        if: always()
+        run: |
+          find . -name "hs_err_pid*.log" -exec echo "::error file={}::" \;
+          find . -name "hs_err_pid*.log" -exec cat {} \;

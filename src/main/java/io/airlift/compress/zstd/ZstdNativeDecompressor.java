@@ -15,6 +15,7 @@ package io.airlift.compress.zstd;
 
 import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static java.lang.Math.toIntExact;
 
@@ -24,9 +25,11 @@ public class ZstdNativeDecompressor
     @Override
     public int decompress(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int maxOutputLength)
     {
+        Objects.checkFromIndexSize(inputOffset, inputLength, input.length);
+        Objects.checkFromIndexSize(outputOffset, maxOutputLength, output.length);
         MemorySegment inputSegment = MemorySegment.ofArray(input).asSlice(inputOffset, inputLength);
         MemorySegment outputSegment = MemorySegment.ofArray(output).asSlice(outputOffset, maxOutputLength);
-        return toIntExact(ZstdNative.decompress(inputSegment, inputLength, outputSegment, maxOutputLength));
+        return toIntExact(decompress(inputSegment, outputSegment));
     }
 
     @Override
@@ -41,12 +44,13 @@ public class ZstdNativeDecompressor
     @Override
     public int decompress(MemorySegment inputSegment, MemorySegment outputSegment)
     {
-        return toIntExact(ZstdNative.decompress(inputSegment, inputSegment.byteSize(), outputSegment, outputSegment.byteSize()));
+        return toIntExact(ZstdNative.decompress(inputSegment, outputSegment));
     }
 
     @Override
     public long getDecompressedSize(byte[] input, int offset, int length)
     {
+        Objects.checkFromIndexSize(offset, length, input.length);
         MemorySegment inputSegment = MemorySegment.ofArray(input).asSlice(offset, length);
         return ZstdNative.decompressedLength(inputSegment, length);
     }

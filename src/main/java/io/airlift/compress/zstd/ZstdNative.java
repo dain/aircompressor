@@ -36,6 +36,7 @@ public final class ZstdNative
 
     // TODO should we just hardcode this to 3?
     public static final int DEFAULT_COMPRESSION_LEVEL;
+    public static final String ZSTD_VERSION;
 
     static {
         MethodHandle defaultCompressionLevelMethod = lookupMethod("ZSTD_defaultCLevel", FunctionDescriptor.of(JAVA_INT));
@@ -45,6 +46,19 @@ public final class ZstdNative
         catch (Throwable e) {
             throw new AssertionError("should not reach here", e);
         }
+        MethodHandle versionMethod = lookupMethod("ZSTD_versionString", FunctionDescriptor.of(C_POINTER));
+        try {
+            ZSTD_VERSION = ((MemorySegment) versionMethod.invokeExact()).getString(0);
+        }
+        catch (Throwable e) {
+            throw new AssertionError("should not reach here", e);
+        }
+
+        System.out.println("""
+                ================================================================================
+                ZstdNative: DEFAULT_COMPRESSION_LEVEL=%d, ZSTD_VERSION=%s
+                ================================================================================
+                """.formatted(DEFAULT_COMPRESSION_LEVEL, ZSTD_VERSION));
     }
 
     private ZstdNative() {}
@@ -75,16 +89,54 @@ public final class ZstdNative
         return result;
     }
 
-    private static final MethodHandle COMPRESS_METHOD = lookupMethod("ZSTD_compress", FunctionDescriptor.of(JAVA_LONG, C_POINTER, JAVA_LONG, C_POINTER, JAVA_LONG, JAVA_INT));
+    private static final MethodHandle CREATE_COMPRESS_CONTEXT_METHOD = lookupMethod("ZSTD_createCCtx", FunctionDescriptor.of(C_POINTER));
 
-    public static long compress(MemorySegment input, long inputLength, MemorySegment compressed, long compressedLength, int compressionLevel)
+    private static MemorySegment createCompressContext()
     {
-        long result;
+        MemorySegment context;
         try {
-            result = (long) COMPRESS_METHOD.invokeExact(compressed, compressedLength, input, inputLength, compressionLevel);
+            context = (MemorySegment) CREATE_COMPRESS_CONTEXT_METHOD.invokeExact();
         }
         catch (Throwable e) {
             throw new AssertionError("should not reach here", e);
+        }
+        return context;
+    }
+
+    private static final MethodHandle FREE_COMPRESS_CONTEXT_METHOD = lookupMethod("ZSTD_freeCCtx", FunctionDescriptor.of(JAVA_LONG, C_POINTER));
+
+    private static void freeCompressContext(MemorySegment context)
+    {
+        if (true) {
+            return;
+        }
+        long result;
+        try {
+            result = (long) FREE_COMPRESS_CONTEXT_METHOD.invokeExact(context);
+        }
+        catch (Throwable e) {
+            throw new AssertionError("should not reach here", e);
+        }
+        if (isError(result)) {
+            throw new IllegalArgumentException("Unknown error occurred during compression: " + getErrorName(result));
+        }
+    }
+
+    private static final MethodHandle COMPRESS_METHOD = lookupMethod("ZSTD_compressCCtx", FunctionDescriptor.of(JAVA_LONG, C_POINTER, C_POINTER, JAVA_LONG, C_POINTER, JAVA_LONG, JAVA_INT));
+
+    public static long compress(MemorySegment input, MemorySegment compressed, int compressionLevel)
+    {
+        System.out.printf("compress(%s, %s, %d)%n", input, compressed, compressionLevel);
+        long result;
+        MemorySegment context = createCompressContext();
+        try {
+            result = (long) COMPRESS_METHOD.invokeExact(context, compressed, compressed.byteSize(), input, input.byteSize(), compressionLevel);
+        }
+        catch (Throwable e) {
+            throw new AssertionError("should not reach here", e);
+        }
+        finally {
+            freeCompressContext(context);
         }
 
         if (isError(result)) {
@@ -93,16 +145,54 @@ public final class ZstdNative
         return result;
     }
 
-    private static final MethodHandle DECOMPRESS_METHOD = lookupMethod("ZSTD_decompress", FunctionDescriptor.of(JAVA_LONG, C_POINTER, JAVA_LONG, C_POINTER, JAVA_LONG));
+    private static final MethodHandle CREATE_DECOMPRESS_CONTEXT_METHOD = lookupMethod("ZSTD_createDCtx", FunctionDescriptor.of(C_POINTER));
 
-    public static long decompress(MemorySegment compressed, long compressedLength, MemorySegment output, long outputLength)
+    private static MemorySegment createDecompressContext()
     {
-        long result;
+        MemorySegment context;
         try {
-            result = (long) DECOMPRESS_METHOD.invokeExact(output, outputLength, compressed, compressedLength);
+            context = (MemorySegment) CREATE_DECOMPRESS_CONTEXT_METHOD.invokeExact();
         }
         catch (Throwable e) {
             throw new AssertionError("should not reach here", e);
+        }
+        return context;
+    }
+
+    private static final MethodHandle FREE_DECOMPRESS_CONTEXT_METHOD = lookupMethod("ZSTD_freeDCtx", FunctionDescriptor.of(JAVA_LONG, C_POINTER));
+
+    private static void freeDecompressContext(MemorySegment context)
+    {
+        if (true) {
+            return;
+        }
+        long result;
+        try {
+            result = (long) FREE_DECOMPRESS_CONTEXT_METHOD.invokeExact(context);
+        }
+        catch (Throwable e) {
+            throw new AssertionError("should not reach here", e);
+        }
+        if (isError(result)) {
+            throw new IllegalArgumentException("Unknown error occurred during decompression: " + getErrorName(result));
+        }
+    }
+
+    private static final MethodHandle DECOMPRESS_METHOD = lookupMethod("ZSTD_decompressDCtx", FunctionDescriptor.of(JAVA_LONG, C_POINTER, C_POINTER, JAVA_LONG, C_POINTER, JAVA_LONG));
+
+    public static long decompress(MemorySegment compressed, MemorySegment output)
+    {
+        System.out.printf("decompress(%s, %s)%n", compressed, output);
+        MemorySegment context = createDecompressContext();
+        long result;
+        try {
+            result = (long) DECOMPRESS_METHOD.invokeExact(context, output, output.byteSize(), compressed, compressed.byteSize());
+        }
+        catch (Throwable e) {
+            throw new AssertionError("should not reach here", e);
+        }
+        finally {
+            freeDecompressContext(context);
         }
 
         if (isError(result)) {

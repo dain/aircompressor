@@ -183,7 +183,7 @@ public abstract class AbstractTestCompression
         // mis-declared buffer size
         byte[] compressedChoppedOff = Arrays.copyOf(compressed, compressedLength - 1);
         throwable = catchThrowable(() -> decompressor.decompress(compressedChoppedOff, 0, compressedLength, data, 0, data.length));
-        if (throwable instanceof UncheckedIOException) {
+        if (throwable instanceof UncheckedIOException | throwable instanceof IndexOutOfBoundsException) {
             // OK
         }
         else {
@@ -199,7 +199,7 @@ public abstract class AbstractTestCompression
         arraycopy(compressed, 0, compressedWithPadding, 10, compressedLength - 1);
 
         throwable = catchThrowable(() -> decompressor.decompress(compressedWithPadding, 10, compressedLength, data, 0, data.length));
-        if (throwable instanceof UncheckedIOException) {
+        if (throwable instanceof UncheckedIOException | throwable instanceof IndexOutOfBoundsException) {
             // OK
         }
         else {
@@ -413,10 +413,12 @@ public abstract class AbstractTestCompression
         Throwable throwable;
 
         // null input buffer
+        System.out.println("testCompressInputBoundsChecks null input buffer");
         assertThatThrownBy(() -> compressor.compress(null, 0, declaredInputLength, output, 0, output.length))
                 .isInstanceOf(NullPointerException.class);
 
         // mis-declared buffer size
+        System.out.println("testCompressInputBoundsChecks mis-declared buffer size");
         throwable = catchThrowable(() -> compressor.compress(new byte[1], 0, declaredInputLength, output, 0, output.length));
         if (throwable instanceof IndexOutOfBoundsException) {
             // OK
@@ -427,6 +429,7 @@ public abstract class AbstractTestCompression
         }
 
         // max too small
+        System.out.println("testCompressInputBoundsChecks max too small");
         throwable = catchThrowable(() -> compressor.compress(new byte[declaredInputLength - 1], 0, declaredInputLength, output, 0, output.length));
         if (throwable instanceof IndexOutOfBoundsException) {
             // OK
@@ -437,6 +440,7 @@ public abstract class AbstractTestCompression
         }
 
         // overrun because of offset
+        System.out.println("testCompressInputBoundsChecks overrun because of offset");
         throwable = catchThrowable(() -> compressor.compress(new byte[declaredInputLength + 10], 11, declaredInputLength, output, 0, output.length));
         if (throwable instanceof IndexOutOfBoundsException) {
             // OK
@@ -474,7 +478,7 @@ public abstract class AbstractTestCompression
 
         // mis-declared buffer size
         throwable = catchThrowable(() -> compressor.compress(input, 0, input.length, new byte[1], 0, maxCompressedLength));
-        if (throwable instanceof ArrayIndexOutOfBoundsException) {
+        if (throwable instanceof IndexOutOfBoundsException) {
             // OK
         }
         else {
@@ -487,7 +491,7 @@ public abstract class AbstractTestCompression
 
         // mis-declared buffer size with buffer large enough to hold compression frame header (if any)
         throwable = catchThrowable(() -> compressor.compress(input, 0, input.length, new byte[minCompressionOverhead * 2], 0, maxCompressedLength));
-        if (throwable instanceof ArrayIndexOutOfBoundsException) {
+        if (throwable instanceof IndexOutOfBoundsException) {
             // OK
         }
         else {
